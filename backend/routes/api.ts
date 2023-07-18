@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import createSessionRouter from "./createSession.js";
+import joinSessionRouter from "./joinSession.js";
 
 const router = express.Router();
 
@@ -9,9 +10,10 @@ router.get("/", (req: Request, res: Response): void => {
 });
 
 router.use("/create-session", createSessionRouter);
+router.use("/join-session", joinSessionRouter);
 
 router.get("*", (req: Request, res: Response): void => {
-    console.log("invalid api get");
+    console.log(`invalid api get:${req.url}`);
     res.redirect("/");
 });
 

@@ -5,6 +5,12 @@ import { Box, Button, TextField, Tooltip } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
+const getVideoUrl = "/api/join-session/get-video-url?";
+
+interface urlData {
+  url: string;
+}
+
 const WatchSession: React.FC = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
@@ -12,12 +18,32 @@ const WatchSession: React.FC = () => {
 
   const [linkCopied, setLinkCopied] = useState(false);
 
-  useEffect(() => {
-    // load video by session ID -- right now we just hardcode a constant video but you should be able to load the video associated with the session
-    setUrl("https://www.youtube.com/watch?v=NX1eKLReSpY");
 
-    // if session ID doesn't exist, you'll probably want to redirect back to the home / create session page
-  }, [sessionId]);
+  useEffect(() => {
+    function error(msg: string) {
+      console.log(msg);
+      navigate("/");
+    }
+
+    if (sessionId === undefined) {
+      error("no sessionId");
+      return;
+    }
+
+    const url = getVideoUrl + new URLSearchParams({ sessionId: sessionId.toString() });
+    fetch(url)
+      .then((res: Response) => {
+        if (!res.ok) error(`Bad response stats: ${res.status}`);
+        else return res.json();
+      })
+      .then((data: urlData) => {
+        console.log(`received response: ${JSON.stringify(data)}`);
+        if (data.url) setUrl(data.url);
+        else error("no url found");
+      }).catch((reason: any) => {
+        error(reason);
+      });
+  }, [sessionId, navigate]);
 
   if (!!url) {
     return (

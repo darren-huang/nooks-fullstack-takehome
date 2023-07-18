@@ -10,7 +10,7 @@ interface sessData {
 
 const postUrl = "/api/create-session";
 
-function makePostRequest(vidUrl: string): Object {
+function createPostRequest(vidUrl: string): Object {
   return {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -26,7 +26,7 @@ const CreateSession: React.FC = () => {
   const handleCreateSession = async () => {
     //TODO: validate youtube url is valid
 
-    fetch(postUrl, makePostRequest(newUrl))
+    fetch(postUrl, createPostRequest(newUrl))
       .then((res: Response) => {
         if (!res.ok) throw new Error(res.status.toString());
         else return res.json();

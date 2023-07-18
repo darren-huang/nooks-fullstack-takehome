@@ -20,15 +20,12 @@ class Session {
     }
 }
 
-interface sessionsMap {
-    [key: string]: Session;
-}
 
 class Sessions {
-    sessions: sessionsMap;
+    sessions: Map<string, Session>;
 
     constructor() {
-        this.sessions = {};
+        this.sessions = new Map();
     }
 
     /**
@@ -39,8 +36,14 @@ class Sessions {
     createSession(vidUrl: string): string {
         const sessionId = uuidv4();
         // TODO: store session data inside MongoDB
-        this.sessions[sessionId] = new Session(sessionId, vidUrl);
+        this.sessions.set(sessionId, new Session(sessionId, vidUrl));
         return sessionId;
+    }
+
+    getVideoUrl(sessionId: string): string | void {
+        if (this.sessions.has(sessionId)) {
+            return this.sessions.get(sessionId)?.vidUrl;
+        }
     }
 }
 
