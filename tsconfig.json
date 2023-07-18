@@ -17,14 +17,16 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
-    "sourceMap": true,
     "outDir": "build"
   },
-  "esm": true,
+  "ts-node": {
+    "esm": true
+  },
   "include": [
     "**.ts",
-    "frontend/src"
+  ],
+  "exclude": [
+    "./frontend",
   ]
 }
