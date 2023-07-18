@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { response } from "express";
 
 interface sessData {
-  [sessionId: string]: string;
+  sessionId: string;
 }
 
 const postUrl = "/api/create-session";

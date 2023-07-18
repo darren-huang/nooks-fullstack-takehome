@@ -2,13 +2,22 @@ import { Express, Request, Response } from "express";
 import express from 'express';
 import path from 'path';
 import apiRouter from './routes/api.js';
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
+import mongoose from 'mongoose';
 
 export class Server {
 
     private app: Express;
 
     constructor(app: Express) {
+        // // setup mongoose
+        // mongoose.set("strictQuery", false);
+        // const mongoDB = "mongodb://localhost/27017";
+        // async function main() {
+        //     await mongoose.connect(mongoDB);
+        // }
+        // main().catch((err) => console.log(err));
+
+        // setup express
         this.app = app;
         this.app.use(express.json());
 

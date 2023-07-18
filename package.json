@@ -19,6 +19,7 @@
   "homepage": "https://github.com/darren-huang/nooks-fullstack-takehome#readme",
   "dependencies": {
     "express": "^4.18.2",
+    "mongoose": "^7.3.4",
     "typescript": "^5.1.6",
     "uuid": "^9.0.0"
   },
