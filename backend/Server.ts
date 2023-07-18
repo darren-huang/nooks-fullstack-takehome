@@ -1,6 +1,8 @@
 import { Express, Request, Response } from "express";
 import express from 'express';
 import path from 'path';
+import apiRouter from './routes/api.js';
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 export class Server {
 
@@ -8,13 +10,13 @@ export class Server {
 
     constructor(app: Express) {
         this.app = app;
+        this.app.use(express.json());
 
+        // routes
+        this.app.use("/api", apiRouter);
+
+        // default rest of routes to React frontend
         this.app.use(express.static(path.resolve("./") + "/build/frontend"));
-
-        this.app.get("/api", (req: Request, res: Response): void => {
-            res.send("You have reached the API!");
-        });
-
         this.app.get("*", (req: Request, res: Response): void => {
             res.sendFile(path.resolve("./") + "/build/frontend/index.html");
         });

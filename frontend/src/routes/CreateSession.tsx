@@ -1,16 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, TextField } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
+import { response } from "express";
+
+interface sessData {
+  [sessionId: string]: string;
+}
+
+const postUrl = "/api/create-session";
+
+function makePostRequest(vidUrl: string): Object {
+  return {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: vidUrl })
+  };
+}
+
 
 const CreateSession: React.FC = () => {
   const navigate = useNavigate();
   const [newUrl, setNewUrl] = useState("");
 
-  const createSession = async () => {
-    setNewUrl("");
-    const sessionId = uuidv4();
-    navigate(`/watch/${sessionId}`);
+  const handleCreateSession = async () => {
+    //TODO: validate youtube url is valid
+
+    fetch(postUrl, makePostRequest(newUrl))
+      .then((res: Response) => {
+        if (!res.ok) throw new Error(res.status.toString());
+        else return res.json();
+      })
+      .then((data: sessData) => {
+        console.log(`received response: ${JSON.stringify(data)}`);
+
+        //TODO: validate sessionId is in response
+        setNewUrl("");
+        navigate(`/watch/${data.sessionId}`);
+      });
   };
 
   return (
@@ -24,7 +51,7 @@ const CreateSession: React.FC = () => {
       />
       <Button
         disabled={!newUrl}
-        onClick={createSession}
+        onClick={handleCreateSession}
         size="small"
         variant="contained"
       >
