@@ -25,7 +25,12 @@ export class Server {
         // setup express
         this.app = app;
         this.server = http.createServer(app);
-        this.io = new SocketIoServer(this.server);
+        this.io = new SocketIoServer(this.server, {
+            cors: {
+                origin: "http://localhost:3001",
+                methods: ["GET", "POST"]
+            }
+        });
         this.app.use(express.json());
 
         // sockets

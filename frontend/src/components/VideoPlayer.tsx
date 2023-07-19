@@ -1,6 +1,10 @@
 import { Box, Button } from "@mui/material";
 import React, { useRef, useState } from "react";
 import ReactPlayer from "react-player";
+import { useEffect } from "react";
+import io from 'socket.io-client';
+import sioEvent from '@nookstakehome/common';
+import { socket } from './socket';
 
 interface VideoPlayerProps {
   url: string;
@@ -11,6 +15,18 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const player = useRef<ReactPlayer>(null);
+
+  // Setup Sockets
+  useEffect(() => {
+    console.log(`Setting up socket to ${window.location.href}`);
+    socket.on(sioEvent.CON, () => {
+      console.log("connected with the back-end");
+    });
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const handleReady = () => {
     setIsReady(true);
