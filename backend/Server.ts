@@ -2,11 +2,16 @@ import { Express, Request, Response } from "express";
 import express from 'express';
 import path from 'path';
 import apiRouter from './routes/api.js';
+import http from 'http';
+import { Server as SocketIoServer } from 'socket.io';
+import setupConnectIo from './sockets/connect.js';
 import mongoose from 'mongoose';
 
 export class Server {
 
     private app: Express;
+    private server: http.Server;
+    private io: SocketIoServer;
 
     constructor(app: Express) {
         // // setup mongoose
@@ -19,7 +24,12 @@ export class Server {
 
         // setup express
         this.app = app;
+        this.server = http.createServer(app);
+        this.io = new SocketIoServer(this.server);
         this.app.use(express.json());
+
+        // sockets
+        setupConnectIo(this.io);
 
         // routes
         this.app.use("/api", apiRouter);
@@ -32,7 +42,7 @@ export class Server {
     }
 
     public start(port: number): void {
-        this.app.listen(port, () => console.log(`Server listening on port ${port}!`));
+        this.server.listen(port, () => console.log(`Server listening on port ${port}!`));
     }
 
 }

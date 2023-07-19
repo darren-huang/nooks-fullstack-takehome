@@ -1,5 +1,5 @@
 {
-  "name": "nooks-fullstack-takehome",
+  "name": "@nookstakehome/backend",
   "version": "1.0.0",
   "description": "Watch Party Project",
   "main": "index.js",
@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/darren-huang/nooks-fullstack-takehome#readme",
   "dependencies": {
+    "common": "^1.0.0",
     "express": "^4.18.2",
     "mongoose": "^7.3.4",
+    "socket.io": "^4.7.1",
     "typescript": "^5.1.6",
     "uuid": "^9.0.0"
   },
@@ -28,5 +30,9 @@
     "@types/node": "^20.4.2",
     "@types/uuid": "^9.0.2"
   },
-  "type": "module"
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "common"
+  ]
 }

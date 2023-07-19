@@ -1,4 +1,5 @@
  #!/usr/bin/env bash
+ # TODO update with new file structure
 
  ### Bundle Backend ###
  rm -rf ./build
