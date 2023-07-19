@@ -1,22 +1,26 @@
 import { v4 as uuidv4 } from "uuid";
 
-interface user {
-    ip: string;
-    //socket?
+
+interface sessionState {
+    lastAction: string;
+    paused: boolean;
+    vidTime: number;
 }
 
-class Session {
+
+export class Session {
     sessionId: string;
     vidUrl: string;
+    lastAction: string;
     paused: boolean = true;
-    lastEventTime: number;
-    lastVideoTime: number = 0;
-    users: Array<user> = [];
+    lastActionTime: number;
+    actionVidTime: number = 0;
 
     constructor(sessionId: string, vidUrl: string) {
         this.sessionId = sessionId;
         this.vidUrl = vidUrl;
-        this.lastEventTime = Date.now();
+        this.lastAction = "";
+        this.lastActionTime = Date.now();
     }
 }
 
@@ -40,10 +44,20 @@ class Sessions {
         return sessionId;
     }
 
-    getVideoUrl(sessionId: string): string | void {
+    getVideoUrl(sessionId: string): string | undefined {
         if (this.sessions.has(sessionId)) {
             return this.sessions.get(sessionId)?.vidUrl;
         }
+    }
+
+    getSessionState(sessionId: string): sessionState | undefined {
+        // console.log(this.sessions);
+        const session = this.sessions.get(sessionId);
+        if (session) return {
+            lastAction: session.lastAction,
+            paused: session.paused,
+            vidTime: session.actionVidTime + (Date.now() - session.lastActionTime)
+        };
     }
 }
 

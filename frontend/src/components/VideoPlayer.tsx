@@ -2,27 +2,57 @@ import { Box, Button } from "@mui/material";
 import React, { useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import { useEffect } from "react";
-import io from 'socket.io-client';
 import sioEvent from '@nookstakehome/common';
 import { socket } from './socket';
+import { Socket } from 'socket.io-client';
+
+const timeout = 1000;
 
 interface VideoPlayerProps {
   url: string;
+  sessionId: string;
   hideControls?: boolean;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
+interface videoState {
+  serverAction: string;
+  currAction: string;
+  paused: boolean;
+  actionVidTime: number;
+}
+
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls }) => {
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  let videoState: videoState;
   const player = useRef<ReactPlayer>(null);
+
+  function joinSession(socket: Socket) {
+    if (videoState) return;
+    socket.emit(sioEvent.JOIN, sessionId);
+    setTimeout(joinSession.bind(null, socket), timeout);
+  }
 
   // Setup Sockets
   useEffect(() => {
     console.log(`Setting up socket to ${window.location.href}`);
-    socket.on(sioEvent.CON, () => {
-      console.log("connected with the back-end");
-    });
     socket.connect();
+
+    socket.on(sioEvent.CON, () => {
+      console.log(`conn ack: joining session '${sessionId}'`);
+      joinSession(socket);
+    });
+
+    socket.on(sioEvent.JOIN_SUCCESS, (serverAction: string, pause: boolean, vidTime: number) => {
+      console.log(`join ack: ${serverAction} ${pause.toString()} ${vidTime.toString()}`);
+      videoState = {
+        serverAction: serverAction,
+        currAction: serverAction,
+        paused: pause,
+        actionVidTime: vidTime,
+      };
+    });
+
     return () => {
       socket.disconnect();
     };
