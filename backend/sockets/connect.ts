@@ -16,8 +16,25 @@ export default function setupSocket(io: SocketServer): void {
             const sessionState = sessions.getSessionState(sessionId);
             if (sessionState) {
                 socket.join(sessionId);
-                console.log(`join: socket ${socket.id} joined room ${sessionId}`);
-                socket.emit(sioEvent.JOIN_SUCCESS, sessionState.lastAction, sessionState.paused, sessionState.vidTime);
+                console.log(`join: ${socket.id.slice(0, 5)} joined ${sessionId}`);
+                socket.emit(
+                    sioEvent.JOIN_SUCCESS,
+                    sessionState.lastAction,
+                    sessionState.paused,
+                    sessionState.vidTime,
+                    sessionState.timeElapsed
+                );
+            } else {
+                console.log(`join: ERROR: session not found for ${sessionId}`);
+            }
+        });
+
+        socket.on(sioEvent.ACT, (sessionId: string, currAct: string, paused: boolean, vidTime: number) => {
+            const session = sessions.getSession(sessionId);
+            if (session) {
+                console.log(`act: sess: ${sessionId} act: ${currAct} paused: ${paused} vidTime: ${vidTime}`);
+                session.setState(currAct, paused, vidTime);
+                // socket.emit(sioEvent.JOIN_SUCCESS, sessionState.lastAction, sessionState.paused, sessionState.vidTime);
             } else {
                 console.log(`join: ERROR: session not found for ${sessionId}`);
             }

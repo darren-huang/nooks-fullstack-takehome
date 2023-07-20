@@ -5,6 +5,7 @@ interface sessionState {
     lastAction: string;
     paused: boolean;
     vidTime: number;
+    timeElapsed: number;
 }
 
 
@@ -21,6 +22,14 @@ export class Session {
         this.vidUrl = vidUrl;
         this.lastAction = "";
         this.lastActionTime = Date.now();
+    }
+
+    setState(action: string, paused: boolean, vidTime: number): void {
+        this.lastAction = action;
+        this.paused = paused;
+        this.actionVidTime = vidTime;
+        this.lastActionTime = Date.now(); // TODO might want to call earlier for a more accurate time?
+        // TODO adjust with a Ping call?
     }
 }
 
@@ -53,11 +62,21 @@ class Sessions {
     getSessionState(sessionId: string): sessionState | undefined {
         // console.log(this.sessions);
         const session = this.sessions.get(sessionId);
-        if (session) return {
-            lastAction: session.lastAction,
-            paused: session.paused,
-            vidTime: session.actionVidTime + (Date.now() - session.lastActionTime)
+        if (session) {
+            const timeElapsed = Math.abs(Date.now() - session.lastActionTime) / 1000;
+            console.log(`join: sess info: ${session.actionVidTime}, elapsed: ${timeElapsed}`);
+            return {
+                lastAction: session.lastAction,
+                paused: session.paused,
+                vidTime: session.actionVidTime,
+                timeElapsed: timeElapsed
+            };
         };
+    }
+
+    getSession(sessionId: string): Session | undefined {
+        const session = this.sessions.get(sessionId);
+        if (session) return session;
     }
 }
 
