@@ -1,5 +1,5 @@
 import { Server as SocketServer, Socket } from 'socket.io';
-import sioEvent from 'common';
+import sioEvent from '@nookstakehome/common';
 import { default as sessions, Session } from '../controller/sessionsController.js';
 import { resolveModuleName } from 'typescript';
 
