@@ -1,3 +1,5 @@
+import { default as def } from './sioEvent.js';
+
 const sioEvent = {
     CON: "connection",
     DCON: "disconnect",
