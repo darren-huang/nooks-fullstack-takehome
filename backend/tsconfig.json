@@ -1,5 +1,4 @@
 {
-    "extends": "../tsconfig.json",
     "compilerOptions": {
         "esModuleInterop": true,
         "strict": true,
@@ -7,8 +6,7 @@
         "moduleResolution": "node"
     },
     "ts-node": {
-        "esm": true,
-        "experimentalSpecifierResolution": "node"
+        "esm": true
     },
     "include": [
         "**.ts",
