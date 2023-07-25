@@ -21,7 +21,11 @@ interface videoState {
   actionVidTime: number;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls }) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({
+  url,
+  sessionId,
+  hideControls,
+}) => {
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [serverState, setServerState] = useState<videoState>({
@@ -42,10 +46,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     vidTime: number,
     elapsedTime: number,
     preventSeek: boolean = false,
-    updateServerState: boolean = false
+    updateServerState: boolean = false,
   ): void {
     console.log(
-      `vid update - a:${action} p:${pause} vt:${vidTime} et:${elapsedTime} ps:${preventSeek}`
+      `vid update - a:${action} p:${pause} vt:${vidTime} et:${elapsedTime} ps:${preventSeek}`,
     );
 
     // add elapsed time for playing video
@@ -89,7 +93,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
       serverAction: string,
       pause: boolean,
       vidTime: number,
-      elapsedTime: number
+      elapsedTime: number,
     ): void {
       // update current state
       updateVideoState(serverAction, pause, vidTime, elapsedTime, false, true);
@@ -125,7 +129,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
       videoState.paused != serverState.paused ||
       Math.abs(serverState.actionVidTime - currVidTime) > timeThreshold
     ) {
-      console.log(`action: emitting action ${[newAction, paused, currVidTime]}`);
+      console.log(
+        `action: emitting action ${[newAction, paused, currVidTime]}`,
+      );
       socket.emit(sioEvent.ACT, sessionId, newAction, paused, currVidTime);
     }
   }
@@ -168,7 +174,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     // You'll need to find a different way to detect seeks (or just write your own seek slider and replace the built in Youtube one.)
     // Note that when you move the slider, you still get play, pause, buffer, and progress events, can you use those?
 
-    console.log("This never prints because seek decetion doesn't work: ", seconds);
+    console.log(
+      "This never prints because seek decetion doesn't work: ",
+      seconds,
+    );
   };
 
   const handlePlay = () => {

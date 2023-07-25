@@ -12,12 +12,11 @@ const postUrl = "/api/create-session";
 
 function createPostRequest(vidUrl: string): Object {
   return {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url: vidUrl })
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: vidUrl }),
   };
 }
-
 
 const CreateSession: React.FC = () => {
   const navigate = useNavigate();

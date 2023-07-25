@@ -6,15 +6,15 @@ const router = express.Router();
 
 // default
 router.get("/", (req: Request, res: Response): void => {
-    res.send("You've hit the api!");
+  res.send("You've hit the api!");
 });
 
 router.use("/create-session", createSessionRouter);
 router.use("/join-session", joinSessionRouter);
 
 router.get("*", (req: Request, res: Response): void => {
-    console.log(`invalid api get:${req.url}`);
-    res.redirect("/");
+  console.log(`invalid api get:${req.url}`);
+  res.redirect("/");
 });
 
 export default router;

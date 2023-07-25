@@ -1,1 +1,1 @@
-export { default as sioEvent } from './sioEvent.js';
+export { default as sioEvent } from "./sioEvent.js";

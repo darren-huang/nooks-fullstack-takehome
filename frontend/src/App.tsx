@@ -10,7 +10,6 @@ const darkTheme = createTheme({
 });
 
 const App = () => {
-
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />

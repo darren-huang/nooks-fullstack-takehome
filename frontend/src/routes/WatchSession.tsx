@@ -29,7 +29,8 @@ const WatchSession: React.FC = () => {
       return;
     }
 
-    const url = getVideoUrl + new URLSearchParams({ sessionId: sessionId.toString() });
+    const url =
+      getVideoUrl + new URLSearchParams({ sessionId: sessionId.toString() });
     fetch(url)
       .then((res: Response) => {
         if (!res.ok) error(`Bad response stats: ${res.status}`);
