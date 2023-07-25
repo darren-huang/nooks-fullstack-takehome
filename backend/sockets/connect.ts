@@ -7,7 +7,6 @@ export default function setupSocket(io: SocketServer): void {
     io.on(sioEvent.CON, (socket: Socket) => {
         // ack connection & log
         console.log(`con: id: ${socket.id}, nsp: ${socket.nsp.name}`);
-        socket.emit(sioEvent.PROP_ACT, "start of connection fake prop_act");
 
         // log disconnections
         socket.on(sioEvent.DCON, () => {
@@ -46,8 +45,7 @@ export default function setupSocket(io: SocketServer): void {
 
             console.log(`act: sess: ${sessionId} act: ${currAct} paused: ${paused} vidTime: ${vidTime}`);
             console.log(`emitting prop_act to ${sessionId}`)
-            socket.emit(sioEvent.PROP_ACT);
-            // socket.to(sessionId).emit(sioEvent.PROP_ACT, currAct, paused, vidTime, 0);
+            socket.to(sessionId).emit(sioEvent.PROP_ACT, currAct, paused, vidTime, 0);
             session.setState(currAct, paused, vidTime);
         });
     });

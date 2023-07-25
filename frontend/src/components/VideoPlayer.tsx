@@ -5,8 +5,6 @@ import { useEffect } from "react";
 import { sioEvent } from "@nookstakehome/common";
 import { socket } from "./socket";
 import { v4 as uuidv4 } from "uuid";
-import e from "express";
-import { VideoStableTwoTone } from "@mui/icons-material";
 
 const timeout = 1000;
 const timeThreshold = 0.1; // less than this amount of seconds off is considered equal
@@ -120,15 +118,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
   useEffect(() => {
     console.log(`Setting up socket to ${window.location.href}`);
     console.log("CAN YOU SEE THIS");
-    // function onPropAct(msg: string) {
-    //   console.log(msg);
-    // }
-    // socket.on(sioEvent.PROP_ACT, onPropAct);
     socket.connect();
-    // socket.on(sioEvent.PROP_ACT, updateVideoState);
+    socket.on(sioEvent.PROP_ACT, updateVideoState);
 
     return () => {
-      // socket.off(sioEvent.PROP_ACT, onPropAct);
       socket.disconnect();
       console.log("DISCONNECTING");
     };
