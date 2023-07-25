@@ -2,7 +2,7 @@ import { Box, Button } from "@mui/material";
 import React, { useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import { useEffect } from "react";
-import sioEvent from '@nookstakehome/common';
+import { sioEvent } from '@nookstakehome/common';
 import { socket } from './socket';
 import { Socket } from 'socket.io-client';
 import { v4 as uuidv4 } from "uuid";
