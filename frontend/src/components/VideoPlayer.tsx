@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { sioEvent } from "@nookstakehome/common";
 import { socket } from "./socket";
 import { v4 as uuidv4 } from "uuid";
+import YouTube, { YouTubeEvent, YouTubeProps } from "react-youtube";
 
 const timeout = 1000;
 const timeThreshold = 0.1; // less than this amount of seconds off is considered equal
@@ -22,6 +23,8 @@ interface videoState {
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls }) => {
+  const vidId = new URLSearchParams(new URL(url).search).get("v");
+  console.log(`vidId: ${vidId}`);
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
   let lastServerAction = ""; // TODO something
@@ -127,6 +130,17 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     };
   }, []);
 
+  const handleStateChange = (event: YouTubeEvent<number>) => {
+    const currState = event.target.getPlayerState();
+    const currPaused =
+      currState != YouTube.PlayerState.PLAYING &&
+      currState != YouTube.PlayerState.BUFFERING;
+    const currTime = event.target.getCurrentTime();
+    console.log(
+      `video state: time:${currTime} paused:${currPaused} event:${event.data}`
+    );
+  };
+
   const handleReady = () => {
     setIsReady(true);
   };
@@ -135,45 +149,50 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     console.log("Video ended");
   };
 
-  const handleSeek = (seconds: number) => {
-    // Ideally, the seek event would be fired whenever the user moves the built in Youtube video slider to a new timestamp.
-    // However, the youtube API no longer supports seek events (https://github.com/cookpete/react-player/issues/356), so this no longer works
+  // const handleSeek = (seconds: number) => {
+  //   // Ideally, the seek event would be fired whenever the user moves the built in Youtube video slider to a new timestamp.
+  //   // However, the youtube API no longer supports seek events (https://github.com/cookpete/react-player/issues/356), so this no longer works
 
-    // You'll need to find a different way to detect seeks (or just write your own seek slider and replace the built in Youtube one.)
-    // Note that when you move the slider, you still get play, pause, buffer, and progress events, can you use those?
+  //   // You'll need to find a different way to detect seeks (or just write your own seek slider and replace the built in Youtube one.)
+  //   // Note that when you move the slider, you still get play, pause, buffer, and progress events, can you use those?
 
-    console.log("This never prints because seek decetion doesn't work: ", seconds);
-  };
+  //   console.log("This never prints because seek decetion doesn't work: ", seconds);
+  // };
 
-  const handlePlay = () => {
-    console.log("play");
-    if (videoState.paused && player.current) {
-      emitAction(player.current.getCurrentTime(), false);
-    } else {
-      console.log(`ERROR: paused: ${videoState.paused}, player: ${player.current}`);
-    }
-  };
+  // const handlePlay = () => {
+  //   console.log("play");
+  //   if (videoState.paused && player.current) {
+  //     emitAction(player.current.getCurrentTime(), false);
+  //   } else {
+  //     console.log(`ERROR: paused: ${videoState.paused}, player: ${player.current}`);
+  //   }
+  // };
 
-  const handlePause = () => {
-    console.log("pause");
-    if (player.current) {
-      emitAction(player.current.getCurrentTime(), true);
-    } else {
-      console.log("ERROR: can't get player");
-    }
-  };
+  // const handlePause = () => {
+  //   console.log("pause");
+  //   if (player.current) {
+  //     emitAction(player.current.getCurrentTime(), true);
+  //   } else {
+  //     console.log("ERROR: can't get player");
+  //   }
+  // };
 
-  const handleBuffer = () => {
-    console.log("Video buffered");
-  };
+  // const handleBuffer = () => {
+  //   console.log("Video buffered");
+  // };
 
-  const handleProgress = (state: {
-    played: number;
-    playedSeconds: number;
-    loaded: number;
-    loadedSeconds: number;
-  }) => {
-    console.log("Video progress: ", state);
+  // const handleProgress = (state: {
+  //   played: number;
+  //   playedSeconds: number;
+  //   loaded: number;
+  //   loadedSeconds: number;
+  // }) => {
+  //   console.log("Video progress: ", state);
+  // };
+
+  const opts: YouTubeProps["opts"] = {
+    height: "100%",
+    width: "100%",
   };
 
   const handleClick = () => {
@@ -198,21 +217,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
         display={hasJoined ? "flex" : "none"}
         flexDirection="column"
       >
-        <ReactPlayer
-          ref={player}
-          url={url}
-          playing={hasJoined && !videoState.paused}
-          controls={!hideControls}
+        <YouTube
+          videoId={vidId ? vidId : ""} // defaults -> ''
           onReady={handleReady}
-          onEnded={handleEnd}
-          onSeek={handleSeek}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onBuffer={handleBuffer}
-          onProgress={handleProgress}
-          width="100%"
-          height="100%"
-          style={{ pointerEvents: hideControls ? "none" : "auto" }}
+          onStateChange={handleStateChange} // defaults -> noop
+          opts={opts}
+          style={{ width: "100%", height: "100%" }}
         />
       </Box>
       {!hasJoined && isReady && (

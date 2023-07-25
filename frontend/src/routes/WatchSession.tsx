@@ -18,7 +18,6 @@ const WatchSession: React.FC = () => {
 
   const [linkCopied, setLinkCopied] = useState(false);
 
-
   useEffect(() => {
     function error(msg: string) {
       console.log(msg);
@@ -40,7 +39,8 @@ const WatchSession: React.FC = () => {
         console.log(`received response: ${JSON.stringify(data)}`);
         if (data.url) setUrl(data.url);
         else error("no url found");
-      }).catch((reason: any) => {
+      })
+      .catch((reason: any) => {
         error(reason);
       });
   }, [sessionId, navigate]);
@@ -92,7 +92,7 @@ const WatchSession: React.FC = () => {
             </Button>
           </Tooltip>
         </Box>
-        <VideoPlayer url={url} sessionId={sessionId as string} />;
+        <VideoPlayer url={url} sessionId={sessionId as string} />
       </>
     );
   }
