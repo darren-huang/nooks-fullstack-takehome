@@ -7,7 +7,7 @@ import { socket } from "./socket";
 import { v4 as uuidv4 } from "uuid";
 
 const timeout = 1000;
-const timeThreshold = 0.1; // less than this amount of seconds off is considered equal
+const timeThreshold = 0.3; // less than this amount of seconds off is considered equal
 
 interface VideoPlayerProps {
   url: string;
@@ -24,7 +24,11 @@ interface videoState {
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls }) => {
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  let lastServerAction = ""; // TODO something
+  const [serverState, setServerState] = useState<videoState>({
+    currAction: "",
+    paused: true,
+    actionVidTime: 0,
+  });
   const [videoState, setVideoState] = useState<videoState>({
     currAction: "",
     paused: true,
@@ -37,7 +41,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     pause: boolean,
     vidTime: number,
     elapsedTime: number,
-    preventSeek: boolean = false
+    preventSeek: boolean = false,
+    updateServerState: boolean = false
   ): void {
     console.log(
       `vid update - a:${action} p:${pause} vt:${vidTime} et:${elapsedTime} ps:${preventSeek}`
@@ -52,6 +57,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
       paused: pause,
       actionVidTime: vidTime,
     });
+    if (updateServerState) {
+      setServerState({
+        currAction: action,
+        paused: pause,
+        actionVidTime: vidTime,
+      });
+    }
 
     // if we can't retrieve the old video time OR if time changed, seek to new time
     const oldVidTime = player.current?.getCurrentTime();
@@ -80,8 +92,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
       elapsedTime: number
     ): void {
       // update current state
-      lastServerAction = serverAction;
-      updateVideoState(serverAction, pause, vidTime, elapsedTime);
+      updateVideoState(serverAction, pause, vidTime, elapsedTime, false, true);
       joined = true;
 
       // wrap up success handler
@@ -108,10 +119,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
    */
   function emitAction(currVidTime: number, paused: boolean): void {
     const newAction = uuidv4();
-    updateVideoState(newAction, paused, currVidTime, 0, true);
+    updateVideoState(newAction, paused, currVidTime, 0, true, false);
 
-    console.log(`action: emitting action ${[newAction, paused, currVidTime]}`);
-    socket.emit(sioEvent.ACT, sessionId, newAction, paused, currVidTime);
+    if (
+      videoState.paused != serverState.paused ||
+      Math.abs(serverState.actionVidTime - currVidTime) > timeThreshold
+    ) {
+      console.log(`action: emitting action ${[newAction, paused, currVidTime]}`);
+      socket.emit(sioEvent.ACT, sessionId, newAction, paused, currVidTime);
+    }
   }
 
   // Setup Sockets
@@ -119,7 +135,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     console.log(`Setting up socket to ${window.location.href}`);
     console.log("CAN YOU SEE THIS");
     socket.connect();
-    socket.on(sioEvent.PROP_ACT, updateVideoState);
+    socket.on(sioEvent.PROP_ACT, (action, pause, vidTime, elapsedTime) => {
+      updateVideoState(action, pause, vidTime, elapsedTime, false, true);
+    });
 
     return () => {
       socket.disconnect();
@@ -127,6 +145,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     };
   }, []);
 
+  let unfinishedHandler: CallableFunction | undefined;
+  useEffect(() => {
+    if (unfinishedHandler) {
+      unfinishedHandler();
+    }
+  }, []);
+
+  // React Video Handlers
   const handleReady = () => {
     setIsReady(true);
   };
@@ -147,10 +173,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
 
   const handlePlay = () => {
     console.log("play");
-    if (videoState.paused && player.current) {
+    if (player.current) {
       emitAction(player.current.getCurrentTime(), false);
     } else {
-      console.log(`ERROR: paused: ${videoState.paused}, player: ${player.current}`);
+      // console.log(`ERROR: paused: ${videoState.paused}, player: ${player.current}`);
+      console.log("Enqueuing handlePlay");
+      unfinishedHandler = handlePlay;
     }
   };
 
@@ -159,12 +187,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     if (player.current) {
       emitAction(player.current.getCurrentTime(), true);
     } else {
-      console.log("ERROR: can't get player");
+      // console.log("ERROR: can't get player");
+      unfinishedHandler = handlePlay;
     }
   };
 
   const handleBuffer = () => {
-    console.log("Video buffered");
+    // console.log("Video buffered");
   };
 
   const handleProgress = (state: {
@@ -173,7 +202,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls 
     loaded: number;
     loadedSeconds: number;
   }) => {
-    console.log("Video progress: ", state);
+    // console.log("Video progress: ", state);
   };
 
   const handleClick = () => {
