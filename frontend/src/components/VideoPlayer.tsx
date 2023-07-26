@@ -21,18 +21,9 @@ interface videoState {
   actionVidTime: number;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({
-  url,
-  sessionId,
-  hideControls,
-}) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, sessionId, hideControls }) => {
   const [hasJoined, setHasJoined] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [serverState, setServerState] = useState<videoState>({
-    currAction: "",
-    paused: true,
-    actionVidTime: 0,
-  });
   const [videoState, setVideoState] = useState<videoState>({
     currAction: "",
     paused: true,
@@ -45,35 +36,26 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     pause: boolean,
     vidTime: number,
     elapsedTime: number,
-    preventSeek: boolean = false,
-    updateServerState: boolean = false,
+    preventSeek: boolean = false
   ): void {
     console.log(
-      `vid update - a:${action} p:${pause} vt:${vidTime} et:${elapsedTime} ps:${preventSeek}`,
+      `vid update - a:${action} p:${pause} vt:${vidTime} et:${elapsedTime} ps:${preventSeek}`
     );
 
     // add elapsed time for playing video
     if (!pause) vidTime += elapsedTime; // TODO adjust with Ping call?
 
     setVideoState({
-      // update current video state
       currAction: action,
       paused: pause,
       actionVidTime: vidTime,
     });
-    if (updateServerState) {
-      setServerState({
-        currAction: action,
-        paused: pause,
-        actionVidTime: vidTime,
-      });
-    }
 
     // if we can't retrieve the old video time OR if time changed, seek to new time
     const oldVidTime = player.current?.getCurrentTime();
     if (
       !preventSeek &&
-      (!oldVidTime || Math.abs(vidTime - oldVidTime) > timeThreshold)
+      (oldVidTime === undefined || Math.abs(vidTime - oldVidTime) > timeThreshold)
     ) {
       console.log(`seeking: vt: ${vidTime}, ot: ${oldVidTime}`);
       player.current?.seekTo(vidTime);
@@ -93,10 +75,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       serverAction: string,
       pause: boolean,
       vidTime: number,
-      elapsedTime: number,
+      elapsedTime: number
     ): void {
       // update current state
-      updateVideoState(serverAction, pause, vidTime, elapsedTime, false, true);
+      updateVideoState(serverAction, pause, vidTime, elapsedTime, false);
       joined = true;
 
       // wrap up success handler
@@ -123,15 +105,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
    */
   function emitAction(currVidTime: number, paused: boolean): void {
     const newAction = uuidv4();
-    updateVideoState(newAction, paused, currVidTime, 0, true, false);
+    const oldPaused = videoState.paused;
+    const oldVidTime = videoState.actionVidTime;
+    updateVideoState(newAction, paused, currVidTime, 0, true);
 
-    if (
-      videoState.paused != serverState.paused ||
-      Math.abs(serverState.actionVidTime - currVidTime) > timeThreshold
-    ) {
-      console.log(
-        `action: emitting action ${[newAction, paused, currVidTime]}`,
-      );
+    if (paused != oldPaused || Math.abs(oldVidTime - currVidTime) > timeThreshold) {
+      console.log(`action: emitting action ${[newAction, paused, currVidTime]}`);
       socket.emit(sioEvent.ACT, sessionId, newAction, paused, currVidTime);
     }
   }
@@ -139,23 +118,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   // Setup Sockets
   useEffect(() => {
     console.log(`Setting up socket to ${window.location.href}`);
-    console.log("CAN YOU SEE THIS");
     socket.connect();
     socket.on(sioEvent.PROP_ACT, (action, pause, vidTime, elapsedTime) => {
-      updateVideoState(action, pause, vidTime, elapsedTime, false, true);
+      console.log("received propogated action...");
+      updateVideoState(action, pause, vidTime, elapsedTime, false);
     });
 
     return () => {
       socket.disconnect();
       console.log("DISCONNECTING");
     };
-  }, []);
-
-  let unfinishedHandler: CallableFunction | undefined;
-  useEffect(() => {
-    if (unfinishedHandler) {
-      unfinishedHandler();
-    }
   }, []);
 
   // React Video Handlers
@@ -167,27 +139,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     console.log("Video ended");
   };
 
-  const handleSeek = (seconds: number) => {
-    // Ideally, the seek event would be fired whenever the user moves the built in Youtube video slider to a new timestamp.
-    // However, the youtube API no longer supports seek events (https://github.com/cookpete/react-player/issues/356), so this no longer works
-
-    // You'll need to find a different way to detect seeks (or just write your own seek slider and replace the built in Youtube one.)
-    // Note that when you move the slider, you still get play, pause, buffer, and progress events, can you use those?
-
-    console.log(
-      "This never prints because seek decetion doesn't work: ",
-      seconds,
-    );
-  };
-
   const handlePlay = () => {
     console.log("play");
     if (player.current) {
       emitAction(player.current.getCurrentTime(), false);
     } else {
-      // console.log(`ERROR: paused: ${videoState.paused}, player: ${player.current}`);
-      console.log("Enqueuing handlePlay");
-      unfinishedHandler = handlePlay;
+      console.log(`ERROR: can't get player`);
     }
   };
 
@@ -196,22 +153,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     if (player.current) {
       emitAction(player.current.getCurrentTime(), true);
     } else {
-      // console.log("ERROR: can't get player");
-      unfinishedHandler = handlePlay;
+      console.log("ERROR: can't get player");
     }
-  };
-
-  const handleBuffer = () => {
-    // console.log("Video buffered");
-  };
-
-  const handleProgress = (state: {
-    played: number;
-    playedSeconds: number;
-    loaded: number;
-    loadedSeconds: number;
-  }) => {
-    // console.log("Video progress: ", state);
   };
 
   const handleClick = () => {
@@ -243,13 +186,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           controls={!hideControls}
           onReady={handleReady}
           onEnded={handleEnd}
-          onSeek={handleSeek}
           onPlay={handlePlay}
           onPause={handlePause}
-          onBuffer={handleBuffer}
-          onProgress={handleProgress}
-          width="100%"
-          height="100%"
+          width="99%"
+          height="99%"
           style={{ pointerEvents: hideControls ? "none" : "auto" }}
         />
       </Box>

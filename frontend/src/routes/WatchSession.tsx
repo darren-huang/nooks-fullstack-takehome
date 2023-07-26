@@ -29,8 +29,7 @@ const WatchSession: React.FC = () => {
       return;
     }
 
-    const url =
-      getVideoUrl + new URLSearchParams({ sessionId: sessionId.toString() });
+    const url = getVideoUrl + new URLSearchParams({ sessionId: sessionId.toString() });
     fetch(url)
       .then((res: Response) => {
         if (!res.ok) error(`Bad response stats: ${res.status}`);
@@ -68,18 +67,20 @@ const WatchSession: React.FC = () => {
             fullWidth
           />
           <Tooltip title={linkCopied ? "Link copied" : "Copy link to share"}>
-            <Button
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                setLinkCopied(true);
-                setTimeout(() => setLinkCopied(false), 2000);
-              }}
-              disabled={linkCopied}
-              variant="contained"
-              sx={{ whiteSpace: "nowrap", minWidth: "max-content" }}
-            >
-              <LinkIcon />
-            </Button>
+            <span>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  setLinkCopied(true);
+                  setTimeout(() => setLinkCopied(false), 2000);
+                }}
+                disabled={linkCopied}
+                variant="contained"
+                sx={{ whiteSpace: "nowrap", minWidth: "max-content" }}
+              >
+                <LinkIcon />
+              </Button>
+            </span>
           </Tooltip>
           <Tooltip title="Create new watch party">
             <Button
