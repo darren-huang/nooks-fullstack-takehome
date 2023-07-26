@@ -1,6 +1,27 @@
+## How to run
+
+Run the project for testing (note that for dev the backend is on port 3000 and the frontend is on port 3001, a proxy will route from the react frontend to the backend for api calls. When accessing the site make sure you're on port 3001)
+
+```
+npm i
+npm run dev
+```
+
+or you can build and run the entrypoint
+
+```
+npm run build
+node build/index.js
+```
+
+## Future Considerations
+
+- add a database for the node backend. In case of server errors/restart we could load all session information from the DB. Currently session are stored in memory.
+
 ## Nooks Watch Party Project
 
 In this takehome project, we want to understand your:
+
 - ability to build something non-trivial from scratch
 - comfort picking up unfamiliar technologies
 - architectural decisions, abstractions, and rigor
@@ -12,18 +33,17 @@ We want to respect your time, so please try not to spend more than 5 hours on th
 To run the app simply "npm i" and then "npm start"
 
 ### Problem
+
 Your task is to build a collaborative “Watch Party” app that lets a distributed group of users watch youtube videos together. The frontend should be written in Typescript (we have a skeleton for you set up) and the backend should be written in Node.JS. The app should support two main pages:
 
 - `/create` **Create a new session**
-    - by giving it a name and a youtube video link. After creating a session `ABC`, you should be automatically redirected to the page `/watch` page for that session
+  - by giving it a name and a youtube video link. After creating a session `ABC`, you should be automatically redirected to the page `/watch` page for that session
 - `/watch/:sessionId` **Join an existing session**
-    
-    *⚠️ The player must be **synced for all users at all times** no matter when they join the party*
-    
-    - **Playing/pausing/seek** the video. When someone plays/pauses the video or jumps to a certain time in the video, this should update for everyone in the session
-    - **Realtime** **Switching** the video. When someone switches the session to a different youtube video, this should update for everyone
-    - **Late to the party**... Everything should stay synced if a user joins the session late (e.g. if the video was already playing, the new user should see it playing at the correct time)
-        
+  _⚠️ The player must be **synced for all users at all times** no matter when they join the party_
+  - **Playing/pausing/seek** the video. When someone plays/pauses the video or jumps to a certain time in the video, this should update for everyone in the session
+  - **Realtime** **Switching** the video. When someone switches the session to a different youtube video, this should update for everyone
+  - **Late to the party**... Everything should stay synced if a user joins the session late (e.g. if the video was already playing, the new user should see it playing at the correct time)
+
 ### Assumptions
 
 - This app obviously **doesn’t need to be production-ready**, but you should at least be aware of any issues you may encounter in more real-world scenarios.
@@ -33,8 +53,9 @@ Your task is to build a collaborative “Watch Party” app that lets a distribu
 You will need to embed a Youtube video directly in the website. In our skeleton code we use [react-player](https://www.npmjs.com/package/react-player), but feel free to use another library or use the [Youtube IFrame API](https://developers.google.com/youtube/iframe_api_reference) directly.
 
 In order to sync the video, you’ll need to know when any user plays, pauses, or seeks in their own player and transmit that information to everyone else. In order to get play, pause, and seek events you can use:
+
 1. [YouTube iFrame API - Events](https://developers.google.com/youtube/iframe_api_reference#Events)
-2. Build your own custom controls for play, pause & seek. If you choose  this option, make sure the controls UX works very similarly to youtube’s standard controls (e.g. play/pause button and a slider for seek)
+2. Build your own custom controls for play, pause & seek. If you choose this option, make sure the controls UX works very similarly to youtube’s standard controls (e.g. play/pause button and a slider for seek)
 
 ### Required Functionality
 
@@ -55,7 +76,6 @@ Feel free to use any resource on the Internet to help you tackle this challenge 
 
 ### Submission
 
-When you’ve finished, please send back your results to me via email as a **zip file**. Make sure to include any instructions about how to run the app in the README.md. 
+When you’ve finished, please send back your results to me via email as a **zip file**. Make sure to include any instructions about how to run the app in the README.md.
 
 I will take a look and schedule a time to talk about your solution!
-
