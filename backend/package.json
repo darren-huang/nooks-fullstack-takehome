@@ -2,9 +2,9 @@
   "name": "@nookstakehome/backend",
   "version": "1.0.0",
   "description": "",
-  "main": "Server.js",
+  "main": "build/Server.js",
   "scripts": {
-    "start": "npx ts-node index.ts"
+    "build": "tsc -b"
   },
   "keywords": [],
   "author": "",

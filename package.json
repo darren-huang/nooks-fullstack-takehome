@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx ts-node index.ts",
-    "build": "./utils/build.sh"
+    "build": "npm run build --workspaces --if-present && tsc -b"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,8 @@
   "homepage": "https://github.com/darren-huang/nooks-fullstack-takehome#readme",
   "type": "module",
   "workspaces": [
-    "backend",
+    "common",
     "frontend",
-    "common"
+    "backend"
   ]
 }

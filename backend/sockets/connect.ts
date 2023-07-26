@@ -1,7 +1,6 @@
 import { Server as SocketServer, Socket } from "socket.io";
 import { sioEvent } from "@nookstakehome/common";
-import { default as sessions, Session } from "../controller/sessionsController.js";
-import { resolveModuleName } from "typescript";
+import { default as sessions } from "../controller/sessionsController.js";
 
 const socketToSession = new Map<string, string>();
 

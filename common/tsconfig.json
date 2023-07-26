@@ -2,9 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
-    "outDir": "build",
+    "outDir": "build"
   },
-  "include": [
-    "**.ts",
-  ]
+  "include": ["**.ts"]
 }

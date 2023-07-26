@@ -1,4 +1,4 @@
-import { Server } from "./Server.js";
+import { Server } from "@nookstakehome/backend";
 import express from "express";
 const app = express();
 
