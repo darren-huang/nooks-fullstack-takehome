@@ -14,6 +14,7 @@ export class Session {
   paused: boolean = true;
   lastActionTime: number;
   actionVidTime: number = 0;
+  numUsers: number = 0;
 
   constructor(sessionId: string, vidUrl: string) {
     this.sessionId = sessionId;
@@ -32,15 +33,20 @@ export class Session {
 
   getState() {
     const timeElapsed = Math.abs(Date.now() - this.lastActionTime) / 1000;
-    console.log(
-      `join: sess info: ${this.actionVidTime}, elapsed: ${timeElapsed}`,
-    );
     return {
       lastAction: this.lastAction,
       paused: this.paused,
       vidTime: this.actionVidTime,
       timeElapsed: timeElapsed,
     };
+  }
+
+  getNumUsers(): number {
+    return this.numUsers;
+  }
+
+  setNumUsers(users: number): void {
+    this.numUsers = users;
   }
 }
 
@@ -80,6 +86,29 @@ class Sessions {
   getSession(sessionId: string): Session | undefined {
     const session = this.sessions.get(sessionId);
     if (session) return session;
+  }
+
+  decrementSession(sessionId: string | undefined): void {
+    if (!sessionId) return;
+
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.setNumUsers(session.getNumUsers() - 1);
+      console.log(`user left session: ${sessionId}: ${session.getNumUsers()} users`);
+      if (session.getNumUsers() == 0) {
+        // clean up empty session
+        console.log(`0 users left, removing session '${sessionId}'`);
+        this.sessions.delete(sessionId);
+      }
+    }
+  }
+
+  incrementSession(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.setNumUsers(session.getNumUsers() + 1);
+      console.log(`user joined session: ${sessionId}: ${session.getNumUsers()} users`);
+    }
   }
 }
 

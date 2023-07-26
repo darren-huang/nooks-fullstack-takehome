@@ -46,8 +46,6 @@ export class Server {
   }
 
   public start(port: number): void {
-    this.server.listen(port, () =>
-      console.log(`Server listening on port ${port}!`),
-    );
+    this.server.listen(port, () => console.log(`Server listening on port ${port}!`));
   }
 }
