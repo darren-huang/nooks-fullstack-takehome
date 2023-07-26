@@ -4,7 +4,8 @@
   "description": "",
   "main": "build/Server.js",
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "build-watch": "tsc -w"
   },
   "keywords": [],
   "author": "",
