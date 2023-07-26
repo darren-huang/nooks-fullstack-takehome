@@ -12,7 +12,7 @@ export class Server {
   private server: http.Server;
   private io: SocketIoServer;
 
-  constructor(app: Express) {
+  constructor(app: Express, frontendDir: string) {
     // // setup mongoose
     // mongoose.set("strictQuery", false);
     // const mongoDB = "mongodb://localhost/27017";
@@ -39,9 +39,9 @@ export class Server {
     this.app.use("/api", apiRouter);
 
     // default rest of routes to React frontend
-    this.app.use(express.static(path.resolve("./") + "/build/frontend"));
+    this.app.use(express.static(path.resolve("./") + frontendDir));
     this.app.get("*", (req: Request, res: Response): void => {
-      res.sendFile(path.resolve("./") + "/build/frontend/index.html");
+      res.sendFile(path.resolve("./") + frontendDir + "/index.html");
     });
   }
 

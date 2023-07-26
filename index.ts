@@ -4,5 +4,5 @@ const app = express();
 
 const port = 3000;
 
-const server = new Server(app);
+const server = new Server(app, "/frontend/build");
 server.start(port);
